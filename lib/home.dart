@@ -39,18 +39,19 @@ class _HomeState extends State<Home> {
         future: futureForecast,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator.adaptive();
+            return const Center(child: CircularProgressIndicator.adaptive());
           }
 
           if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
+            return Center(child: Text(snapshot.error.toString()));
           }
 
           final tod = TimeOfDay.now();
           final currentCondition = snapshot.data!.timelines.hourly
               .firstWhere((element) => tod.hour == element.time.hour);
           final futureConditions = snapshot.data!.timelines.hourly
-              .where((element) => element.time.hour > tod.hour);
+              .skipWhile((element) => element.time.hour <= tod.hour)
+              .take(8);
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
